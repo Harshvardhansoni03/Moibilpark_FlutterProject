@@ -1,6 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:mobil_park/firebase_options.dart';
+import 'package:mobil_park/services/client/client_login_screen.dart';
+import 'package:mobil_park/services/client/client_registration_screen.dart';
 import 'package:mobil_park/splash_screen.dart';
 
 Future<void> main() async {
@@ -22,8 +24,8 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
 
-      home:  SplashScreen(),
-      // home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      // home:  SplashScreen(),
+      home:  RegisterScreen(),
     );
   }
 }
@@ -54,7 +56,6 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
         child: Column(
-         
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Text(

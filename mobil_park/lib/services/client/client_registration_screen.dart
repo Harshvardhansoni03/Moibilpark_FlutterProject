@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class SignInScreen extends StatelessWidget {
+class RegisterScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -12,13 +12,13 @@ class SignInScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Icon or logo
+                // Logo and Title
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
                       Icons.directions_car,
-                      color: Colors.white,
+                      color: Color(0xFFD7B7A5),
                       size: 36,
                     ),
                     SizedBox(width: 8),
@@ -27,31 +27,53 @@ class SignInScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: Color(0xFFD7B7A5), // Light pink color
                       ),
                     ),
                   ],
                 ),
                 SizedBox(height: 32),
-                // Image
-                Container(
-                  height: 200,
-                  child: Image.asset(
-                    'assets/images/car_r.jpg',
-                    fit: BoxFit.cover,
+                // Name Field
+                TextField(
+                  style: TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    labelText: "Name",
+                    labelStyle: TextStyle(color: Color(0xFFD7B7A5)),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Color(0xFFD7B7A5)),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
                   ),
                 ),
-                SizedBox(height: 32),
-                // Email Field
+                SizedBox(height: 16),
+                // Phone Number Field
                 TextField(
+                  style: TextStyle(color: Colors.white),
                   decoration: InputDecoration(
-                    filled: true,
-                    fillColor: Colors.white,
-                    hintText: "Email",
-                    prefixIcon: Icon(Icons.email, color: Colors.grey),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: BorderSide.none,
+                    labelText: "Phone number",
+                    labelStyle: TextStyle(color: Color(0xFFD7B7A5)),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Color(0xFFD7B7A5)),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 16),
+                // Email ID Field
+                TextField(
+                  style: TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    labelText: "Email ID",
+                    labelStyle: TextStyle(color: Color(0xFFD7B7A5)),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Color(0xFFD7B7A5)),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
                     ),
                   ),
                 ),
@@ -59,52 +81,83 @@ class SignInScreen extends StatelessWidget {
                 // Password Field
                 TextField(
                   obscureText: true,
+                  style: TextStyle(color: Colors.white),
                   decoration: InputDecoration(
-                    filled: true,
-                    fillColor: Colors.white,
-                    hintText: "Password",
-                    prefixIcon: Icon(Icons.lock, color: Colors.grey),
-                    suffixIcon: Icon(Icons.visibility_off, color: Colors.grey),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: BorderSide.none,
+                    labelText: "Password",
+                    labelStyle: TextStyle(color: Color(0xFFD7B7A5)),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Color(0xFFD7B7A5)),
                     ),
-                  ),
-                ),
-                SizedBox(height: 24),
-                // Sign-in Button
-                ElevatedButton(
-                  onPressed: () {
-                    // Handle sign-in logic
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFB5A96B),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
                     ),
-                    padding: EdgeInsets.symmetric(vertical: 16, horizontal: 80),
-                  ),
-                  child: Text(
-                    "Sign-in",
-                    style: TextStyle(fontSize: 18),
+                    suffixIcon: Icon(
+                      Icons.visibility,
+                      color: Color(0xFFD7B7A5),
+                    ),
                   ),
                 ),
                 SizedBox(height: 16),
-                // Sign-up Text
+                // Confirm Password Field
+                TextField(
+                  obscureText: true,
+                  style: TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    labelText: "Confirm Password",
+                    labelStyle: TextStyle(color: Color(0xFFD7B7A5)),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Color(0xFFD7B7A5)),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
+                    suffixIcon: Icon(
+                      Icons.visibility,
+                      color: Color(0xFFD7B7A5),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 32),
+                // Sign-up Button
+                Container(
+                  width: double.infinity,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: Color(0xFF939185), // Button background color
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Center(
+                    child: GestureDetector(
+                      onTap: () {
+                        // Handle sign-up logic
+                      },
+                      child: Text(
+                        "Sign-up",
+                        style: TextStyle(
+                          color: Colors.white, // Text color
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 16),
+                // Sign-in Text
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "Don’t have an Account?",
+                      "Already have an account?",
                       style: TextStyle(color: Colors.white70),
                     ),
                     TextButton(
                       onPressed: () {
-                        // Navigate to Sign-up screen
+                        // Navigate to Sign-in screen
                       },
                       child: Text(
-                        "Sign up",
-                        style: TextStyle(color: Color(0xFFB5A96B)),
+                        "Sign in",
+                        style: TextStyle(color: Color(0xFFD7B7A5)),
                       ),
                     ),
                   ],
