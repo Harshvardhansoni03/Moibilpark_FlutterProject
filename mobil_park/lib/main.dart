@@ -1,8 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:mobil_park/firebase_options.dart';
-import 'package:mobil_park/screens/clients/client_login_screen.dart';
-import 'package:mobil_park/screens/clients/client_registration_screen.dart';
+import 'package:mobil_park/services/client/client_login_screen.dart';
+import 'package:mobil_park/services/client/client_registration_screen.dart';
 import 'package:mobil_park/splash_screen.dart';
 
 Future<void> main() async {
