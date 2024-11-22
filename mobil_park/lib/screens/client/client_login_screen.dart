@@ -1,7 +1,7 @@
 // sign_in_screen.dart
 import 'package:flutter/material.dart';
-import 'package:mobil_park/controller/auth_controller.dart';
-import 'package:mobil_park/model/auth_model.dart';
+import 'package:mobil_park/controller/faculty/auth_controller.dart';
+import 'package:mobil_park/model/faculty/auth_model.dart';
 import 'client_registration_screen.dart';
 
 class SignInScreen extends StatefulWidget {

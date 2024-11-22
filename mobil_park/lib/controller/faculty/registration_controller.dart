@@ -2,8 +2,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:mobil_park/model/user.dart';
-import 'package:mobil_park/services/client/client_login_screen.dart';
+import 'package:mobil_park/model/faculty/user.dart';
 
 class RegisterController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -40,10 +39,7 @@ class RegisterController {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Registration Successful!")));
 
       // Navigate to login screen
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => SignInScreen()),
-      );
+      Navigator.pushReplacementNamed(context, '/login');
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: ${e.toString()}")));
     }

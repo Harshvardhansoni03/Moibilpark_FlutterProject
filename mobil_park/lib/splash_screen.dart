@@ -1,4 +1,8 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:mobil_park/screens/admin/admin_login.dart';
+import 'package:mobil_park/screens/client/client_registration_screen.dart';
+import 'package:mobil_park/screens/admin/admin_registration.dart';
 
 void main() => runApp(MobilParkApp());
 
@@ -25,6 +29,8 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
+
+    // Animation setup
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
@@ -33,6 +39,14 @@ class _SplashScreenState extends State<SplashScreen>
       parent: _controller,
       curve: Curves.easeInOut,
     ));
+
+    // Navigate to the next screen after 3 seconds
+    Timer(Duration(seconds: 3), () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => AdminSignInScreen()), // Replace with the screen you want
+      );
+    });
   }
 
   @override
@@ -101,3 +115,4 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 }
+
