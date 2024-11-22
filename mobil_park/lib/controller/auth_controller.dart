@@ -1,36 +1,38 @@
+// auth_controller.dart
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:mobil_park/model/auth_model.dart';
 
-class AuthController extends GetxController {
-  var email = ''.obs;
-  var password = ''.obs;
-  var isPasswordVisible = false.obs;
-  var name = ''.obs;
-  var phone = ''.obs;
-  var confirmPassword = ''.obs;
+class AuthController {
+  final AuthModel _authModel;
+  final BuildContext context;
 
-  void togglePasswordVisibility() {
-    isPasswordVisible.value = !isPasswordVisible.value;
-  }
+  AuthController(this.context, this._authModel);
 
-  void login() {
-    // Add login logic here
-    if (email.value.isNotEmpty && password.value.isNotEmpty) {
-      print("Logging in with email: ${email.value}");
-    } else {
-      Get.snackbar("Error", "Please fill in all fields");
+  Future<void> signIn(String email, String password) async {
+    if (!_authModel.validateEmail(email)) {
+      _showError("Invalid email format.");
+      return;
+    }
+
+    if (!_authModel.validatePassword(password)) {
+      _showError("Password must be at least 6 characters long.");
+      return;
+    }
+
+    try {
+      final user = await _authModel.signInWithEmailAndPassword(email, password);
+      if (user != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Login Successful!")),
+        );
+        // Navigate to home screen or dashboard
+      }
+    } catch (e) {
+      _showError("Error: ${e.toString()}");
     }
   }
 
-  void signup() {
-    // Add signup logic here
-    if (name.value.isNotEmpty &&
-        phone.value.isNotEmpty &&
-        email.value.isNotEmpty &&
-        password.value == confirmPassword.value) {
-      print("Signing up user: ${name.value}");
-    } else {
-      Get.snackbar("Error", "Please ensure all fields are correctly filled");
-    }
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 }

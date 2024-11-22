@@ -1,5 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
+// sign_in_screen.dart
 import 'package:flutter/material.dart';
+import 'package:mobil_park/controller/auth_controller.dart';
+import 'package:mobil_park/model/auth_model.dart';
 import 'client_registration_screen.dart';
 
 class SignInScreen extends StatefulWidget {
@@ -10,42 +12,14 @@ class SignInScreen extends StatefulWidget {
 class _SignInScreenState extends State<SignInScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _auth = FirebaseAuth.instance;
+  final AuthModel _authModel = AuthModel();
+  late AuthController _authController;
   bool _isPasswordVisible = false;
 
-  Future<void> _signIn() async {
-    final email = _emailController.text.trim();
-    final password = _passwordController.text;
-
-    if (!_validateInputs(email, password)) return;
-
-    try {
-      await _auth.signInWithEmailAndPassword(email: email, password: password);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Login Successful!")),
-      );
-      // Navigate to the home screen or dashboard
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: ${e.toString()}")),
-      );
-    }
-  }
-
-  bool _validateInputs(String email, String password) {
-    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email)) {
-      _showError("Invalid email format.");
-      return false;
-    }
-    if (password.length < 6) {
-      _showError("Password must be at least 6 characters long.");
-      return false;
-    }
-    return true;
-  }
-
-  void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  @override
+  void initState() {
+    super.initState();
+    _authController = AuthController(context, _authModel);
   }
 
   @override
@@ -135,7 +109,12 @@ class _SignInScreenState extends State<SignInScreen> {
                     ),
                     SizedBox(height: 24),
                     GestureDetector(
-                      onTap: _signIn,
+                      onTap: () {
+                        _authController.signIn(
+                          _emailController.text.trim(),
+                          _passwordController.text,
+                        );
+                      },
                       child: Container(
                         width: double.infinity,
                         height: 50,
