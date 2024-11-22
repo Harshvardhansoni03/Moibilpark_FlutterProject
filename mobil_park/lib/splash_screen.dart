@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:mobil_park/screens/admin/admin_home.dart';
 import 'package:mobil_park/screens/admin/admin_login.dart';
 import 'package:mobil_park/screens/client/client_registration_screen.dart';
 import 'package:mobil_park/screens/admin/admin_registration.dart';
@@ -44,7 +45,7 @@ class _SplashScreenState extends State<SplashScreen>
     Timer(Duration(seconds: 3), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => AdminSignInScreen()), // Replace with the screen you want
+        MaterialPageRoute(builder: (context) => AdminHomeScreen()), // Replace with the screen you want
       );
     });
   }
