@@ -1,6 +1,9 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:mailer/mailer.dart';
+import 'package:mailer/smtp_server.dart';
 import 'client_login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -22,6 +25,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
 
+  // OTP Variable
+  String? _otp;
+
   Future<void> _register() async {
     final name = _nameController.text.trim();
     final phone = _phoneController.text.trim();
@@ -34,15 +40,35 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (!_validateInputs(name, phone, email, password, confirmPassword, carNumber, facultyEmploymentNumber)) return;
 
     try {
-      await _auth.createUserWithEmailAndPassword(
-          email: email, password: password);
+
+
+      // Register the user in Firebase Authentication
+      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      // Add user details to Firestore
+      final userId = userCredential.user?.uid;
+      if (userId != null) {
+        await FirebaseFirestore.instance.collection('Faculty_Details').doc(userId).set({
+          'Name': name,
+          'Phone no.': phone,
+          'Email': email,
+          'Employ number': facultyEmploymentNumber,
+          'Car number': carNumber,
+        });
+      }
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Registration Successful!")),
       );
-      // Navigate back to login
+
+      // Navigate to login screen
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => SignInScreen()));
+        context,
+        MaterialPageRoute(builder: (context) => SignInScreen()),
+      );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error: ${e.toString()}")),
@@ -50,8 +76,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
-  bool _validateInputs(String name, String phone, String email,
-      String password, String confirmPassword, String carNumber, String facultyEmploymentNumber) {
+  bool _validateInputs(String name, String phone, String email, String password,
+      String confirmPassword, String carNumber, String facultyEmploymentNumber) {
     if (name.isEmpty) {
       _showError("Name is required.");
       return false;
@@ -87,6 +113,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
+  // Generate a random 4-digit OTP
+  String _generateOtp() {
+    final random = Random();
+    return (random.nextInt(9000) + 1000).toString();
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -102,8 +136,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.directions_car,
-                        color: Color(0xFFD7B7A5), size: 36),
+                    Icon(Icons.directions_car, color: Color(0xFFD7B7A5), size: 36),
                     SizedBox(width: 8),
                     Text(
                       "MobilPark",
@@ -116,198 +149,63 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ],
                 ),
                 SizedBox(height: 32),
-                // Name Field
-                TextField(
-                  controller: _nameController,
-                  style: TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    labelText: "Name",
-                    labelStyle: TextStyle(color: Color(0xFFD7B7A5)),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Color(0xFFD7B7A5)),
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                    prefixIcon: Icon(Icons.person, color: Color(0xFFD7B7A5)),
-                  ),
-                ),
+                // Input fields
+                _buildTextField("Name", _nameController, Icons.person),
                 SizedBox(height: 16),
-                // Phone Number Field
-                TextField(
-                  controller: _phoneController,
-                  style: TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    labelText: "Phone number",
-                    labelStyle: TextStyle(color: Color(0xFFD7B7A5)),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Color(0xFFD7B7A5)),
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                    prefixIcon: Icon(Icons.phone, color: Color(0xFFD7B7A5)),
-                  ),
-                  keyboardType: TextInputType.phone,
-                ),
+                _buildTextField("Phone number", _phoneController, Icons.phone,
+                    inputType: TextInputType.phone),
                 SizedBox(height: 16),
-                // Email ID Field
-                TextField(
-                  controller: _emailController,
-                  style: TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    labelText: "Email ID",
-                    labelStyle: TextStyle(color: Color(0xFFD7B7A5)),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Color(0xFFD7B7A5)),
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                    prefixIcon: Icon(Icons.email, color: Color(0xFFD7B7A5)),
-                  ),
-                  keyboardType: TextInputType.emailAddress,
-                ),
+                _buildTextField("Email ID", _emailController, Icons.email,
+                    inputType: TextInputType.emailAddress),
                 SizedBox(height: 16),
-                // Car Number Field
-                TextField(
-                  controller: _carNumberController,
-                  style: TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    labelText: "Car Number",
-                    labelStyle: TextStyle(color: Color(0xFFD7B7A5)),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Color(0xFFD7B7A5)),
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                    prefixIcon: Icon(Icons.directions_car, color: Color(0xFFD7B7A5)),
-                  ),
-                ),
+                _buildTextField("Car Number", _carNumberController,
+                    Icons.directions_car),
                 SizedBox(height: 16),
-                // Faculty Employment Number Field
-                TextField(
-                  controller: _facultyEmploymentNumberController,
-                  style: TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    labelText: "Faculty Employment Number",
-                    labelStyle: TextStyle(color: Color(0xFFD7B7A5)),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Color(0xFFD7B7A5)),
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                    prefixIcon: Icon(Icons.badge, color: Color(0xFFD7B7A5)),
-                  ),
-                  keyboardType: TextInputType.number,
-                ),
+                _buildTextField(
+                    "Faculty Employment Number", _facultyEmploymentNumberController, Icons.badge),
                 SizedBox(height: 16),
-                // Password Field
-                TextField(
-                  controller: _passwordController,
-                  obscureText: !_isPasswordVisible,
-                  style: TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    labelText: "Password",
-                    labelStyle: TextStyle(color: Color(0xFFD7B7A5)),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Color(0xFFD7B7A5)),
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                    prefixIcon: Icon(Icons.lock, color: Color(0xFFD7B7A5)),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _isPasswordVisible
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                        color: Color(0xFFD7B7A5),
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _isPasswordVisible = !_isPasswordVisible;
-                        });
-                      },
+                _buildPasswordField("Password", _passwordController,
+                    _isPasswordVisible, () {
+                  setState(() {
+                    _isPasswordVisible = !_isPasswordVisible;
+                  });
+                }),
+                SizedBox(height: 16),
+                _buildPasswordField("Confirm Password",
+                    _confirmPasswordController, _isConfirmPasswordVisible, () {
+                  setState(() {
+                    _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+                  });
+                }),
+                SizedBox(height: 24),
+                // Register Button
+                ElevatedButton(
+                  onPressed: _register,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFFD7B7A5),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40.0, vertical: 12.0),
+                    child: Text(
+                      "Register",
+                      style: TextStyle(fontSize: 18, color: Colors.black),
                     ),
                   ),
                 ),
                 SizedBox(height: 16),
-                // Confirm Password Field
-                TextField(
-                  controller: _confirmPasswordController,
-                  obscureText: !_isConfirmPasswordVisible,
-                  style: TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    labelText: "Confirm Password",
-                    labelStyle: TextStyle(color: Color(0xFFD7B7A5)),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Color(0xFFD7B7A5)),
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                    prefixIcon: Icon(Icons.lock, color: Color(0xFFD7B7A5)),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _isConfirmPasswordVisible
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                        color: Color(0xFFD7B7A5),
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _isConfirmPasswordVisible =
-                              !_isConfirmPasswordVisible;
-                        });
-                      },
-                    ),
+                // Already have an account? Login
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => SignInScreen()),
+                    );
+                  },
+                  child: Text(
+                    "Already have an account? Login",
+                    style: TextStyle(color: Color(0xFFD7B7A5)),
                   ),
-                ),
-                SizedBox(height: 32),
-                // Sign-up Button
-                GestureDetector(
-                  onTap: _register,
-                  child: Container(
-                    width: double.infinity,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: Color(0xFF939185),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Center(
-                      child: Text(
-                        "Sign-up",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 16),
-                // Sign-in Text
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text("Already have an account?",
-                        style: TextStyle(color: Colors.white70)),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => SignInScreen()),
-                        );
-                      },
-                      child: Text("Sign in",
-                          style: TextStyle(color: Color(0xFFD7B7A5))),
-                    ),
-                  ],
                 ),
               ],
             ),
@@ -315,5 +213,67 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildTextField(String label, TextEditingController controller,
+      IconData icon, {TextInputType inputType = TextInputType.text}) {
+    return TextField(
+      controller: controller,
+      keyboardType: inputType,
+      style: TextStyle(color: Colors.white),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(color: Color(0xFFD7B7A5)),
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFFD7B7A5)),
+        ),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.white),
+        ),
+        prefixIcon: Icon(icon, color: Color(0xFFD7B7A5)),
+      ),
+    );
+  }
+
+  Widget _buildPasswordField(
+      String label,
+      TextEditingController controller,
+      bool isPasswordVisible,
+      VoidCallback toggleVisibility) {
+    return TextField(
+      controller: controller,
+      obscureText: !isPasswordVisible,
+      style: TextStyle(color: Colors.white),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(color: Color(0xFFD7B7A5)),
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFFD7B7A5)),
+        ),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.white),
+        ),
+        prefixIcon: Icon(Icons.lock, color: Color(0xFFD7B7A5)),
+        suffixIcon: IconButton(
+          icon: Icon(
+            isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+            color: Color(0xFFD7B7A5),
+          ),
+          onPressed: toggleVisibility,
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _phoneController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    _carNumberController.dispose();
+    _facultyEmploymentNumberController.dispose();
+    super.dispose();
   }
 }
