@@ -127,29 +127,7 @@ class _AdminSignInScreenState extends State<AdminSignInScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          "Don't have an account?",
-                          style: TextStyle(color: Colors.white70),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => AdminRegisterScreen(),
-                              ),
-                            );
-                          },
-                          child: const Text(
-                            "Register",
-                            style: TextStyle(color: Color(0xFFB5A96B)),
-                          ),
-                        ),
-                      ],
-                    ),
+                    
                   ],
                 ),
               ),
