@@ -2,7 +2,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:mobil_park/model/faculty/user.dart';
+import 'package:mobil_park/model/faculty/faculty_user.dart';
 
 class RegisterController {
   final FirebaseAuth _auth = FirebaseAuth.instance;

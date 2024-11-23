@@ -4,6 +4,7 @@ import 'package:mobil_park/screens/admin/admin_home.dart';
 import 'package:mobil_park/screens/admin/admin_login.dart';
 import 'package:mobil_park/screens/client/client_registration_screen.dart';
 import 'package:mobil_park/screens/admin/admin_registration.dart';
+import 'package:mobil_park/services/location_service.dart';
 
 void main() => runApp(MobilParkApp());
 
