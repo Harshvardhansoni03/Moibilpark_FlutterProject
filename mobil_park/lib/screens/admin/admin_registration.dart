@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobil_park/controller/admin/admin_registration_controller.dart';
-import 'package:mobil_park/model/admin/user.dart';
+import 'package:mobil_park/model/admin/admin_user.dart';
 import 'package:mobil_park/screens/admin/admin_login.dart';
 
 class AdminRegisterScreen extends StatefulWidget {

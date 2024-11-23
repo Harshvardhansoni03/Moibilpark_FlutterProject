@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 
 class LocationServices extends StatefulWidget {
   const LocationServices({super.key});
@@ -9,10 +10,13 @@ class LocationServices extends StatefulWidget {
 }
 
 class _LocationServicesState extends State<LocationServices> {
-  String? latitude; // Variable to store latitude
-  String? longitude; // Variable to store longitude
+  String? latitude;
+  String? longitude;
+  String? address; // Variable to store the human-readable address
 
-  getCurrentLocation() async {
+  // Fetch the current location and address
+  Future<void> getCurrentLocationAndAddress() async {
+    // Check for location permissions
     LocationPermission permissions = await Geolocator.checkPermission();
     if (permissions == LocationPermission.denied ||
         permissions == LocationPermission.deniedForever) {
@@ -24,11 +28,35 @@ class _LocationServicesState extends State<LocationServices> {
         desiredAccuracy: LocationAccuracy.best,
       );
 
-      // Update the UI with latitude and longitude
       setState(() {
         latitude = currentPosition.latitude.toString();
         longitude = currentPosition.longitude.toString();
       });
+
+      // Reverse geocode to get the address
+      try {
+        List<Placemark> placemarks = await placemarkFromCoordinates(
+          currentPosition.latitude,
+          currentPosition.longitude,
+        );
+
+        if (placemarks.isNotEmpty) {
+          Placemark place = placemarks[0];
+          setState(() {
+            address =
+                "${place.street}, ${place.locality}, ${place.administrativeArea}, ${place.country}";
+          });
+        } else {
+          setState(() {
+            address = "No address available for this location.";
+          });
+        }
+      } catch (e) {
+        print("Error in reverse geocoding: $e");
+        setState(() {
+          address = "Failed to fetch address.";
+        });
+      }
     }
   }
 
@@ -41,22 +69,22 @@ class _LocationServicesState extends State<LocationServices> {
         title: Row(
           children: [
             Icon(
-              Icons.directions_car, // Car icon
+              Icons.directions_car,
               color: const Color(0xFFE4C2B4),
-              size: 35,
+              size: 34,
             ),
             const SizedBox(width: 8),
             const Text(
               "MobilPark",
               style: TextStyle(
-                color: Color(0xFFE4C2B4), // Pinkish text color
+                color: Color(0xFFE4C2B4),
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
             ),
           ],
         ),
-        centerTitle: false, // Align title to the left
+        centerTitle: false,
         elevation: 0,
       ),
       body: Padding(
@@ -76,8 +104,17 @@ class _LocationServicesState extends State<LocationServices> {
                 fontSize: 18,
               ),
             ),
+            const SizedBox(height: 10),
+            // Address Display
+            Text(
+              address ?? "Fetching address...",
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Color(0xFFE4C2B4),
+                fontSize: 16,
+              ),
+            ),
             const SizedBox(height: 30),
-
             // Grab Location Button
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -88,14 +125,13 @@ class _LocationServicesState extends State<LocationServices> {
                 ),
                 padding: const EdgeInsets.symmetric(vertical: 15),
               ),
-              onPressed: getCurrentLocation,
+              onPressed: getCurrentLocationAndAddress,
               child: const Text(
-                "Grab Location",
+                "Grab Location and Address",
                 style: TextStyle(fontSize: 16),
               ),
             ),
             const SizedBox(height: 20),
-
             // Placeholder for additional instructions or info
             const Text(
               "Park effortlessly, anytime, anywhere!",

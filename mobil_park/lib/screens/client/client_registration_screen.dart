@@ -1,7 +1,7 @@
 // view/register_screen.dart
 import 'package:flutter/material.dart';
-import 'package:mobil_park/controller/faculty/registration_controller.dart';
-import 'package:mobil_park/model/faculty/user.dart';
+import 'package:mobil_park/controller/faculty/faculty_registration_controller.dart';
+import 'package:mobil_park/model/faculty/faculty_user.dart';
 import 'package:mobil_park/screens/client/client_login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {

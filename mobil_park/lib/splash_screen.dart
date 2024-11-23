@@ -1,8 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:mobil_park/screens/admin/admin_home.dart';
 import 'package:mobil_park/screens/admin/admin_login.dart';
+import 'package:mobil_park/screens/client/client_login_screen.dart';
 import 'package:mobil_park/screens/client/client_registration_screen.dart';
 import 'package:mobil_park/screens/admin/admin_registration.dart';
+
+import 'screens/client/client_home_screen.dart';
 
 void main() => runApp(MobilParkApp());
 
@@ -33,7 +37,7 @@ class _SplashScreenState extends State<SplashScreen>
     // Animation setup
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 2),
+      duration: const Duration(milliseconds: 1000),
     )..repeat(reverse: true);
     _animation = Tween<double>(begin: 200, end: 250).animate(CurvedAnimation(
       parent: _controller,
@@ -41,10 +45,10 @@ class _SplashScreenState extends State<SplashScreen>
     ));
 
     // Navigate to the next screen after 3 seconds
-    Timer(Duration(seconds: 3), () {
+    Timer(Duration(milliseconds: 3000), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => AdminSignInScreen()), // Replace with the screen you want
+        MaterialPageRoute(builder: (context) => LocationServices()), // Replace with the screen you want
       );
     });
   }

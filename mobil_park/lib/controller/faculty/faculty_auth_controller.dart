@@ -1,6 +1,6 @@
 // auth_controller.dart
 import 'package:flutter/material.dart';
-import 'package:mobil_park/model/faculty/auth_model.dart';
+import 'package:mobil_park/model/faculty/faculty_auth_model.dart';
 
 class AuthController {
   final AuthModel _authModel;
