@@ -1,4 +1,3 @@
-// view/register_screen.dart
 import 'package:flutter/material.dart';
 import 'package:mobil_park/controller/faculty/faculty_registration_controller.dart';
 import 'package:mobil_park/model/faculty/faculty_user.dart';
@@ -22,6 +21,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
+  bool _isHoveringLogin = false; // State for hover effect on "Login" container
 
   @override
   Widget build(BuildContext context) {
@@ -58,20 +58,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 _buildTextField("Email ID", _emailController, Icons.email,
                     inputType: TextInputType.emailAddress),
                 SizedBox(height: 16),
-                _buildTextField("Car Number", _carNumberController,
-                    Icons.directions_car),
+                _buildTextField("Car Number", _carNumberController, Icons.directions_car),
                 SizedBox(height: 16),
                 _buildTextField("Faculty Employment Number", _facultyEmploymentNumberController, Icons.badge),
                 SizedBox(height: 16),
-                _buildPasswordField("Password", _passwordController,
-                    _isPasswordVisible, () {
+                _buildPasswordField("Password", _passwordController, _isPasswordVisible, () {
                   setState(() {
                     _isPasswordVisible = !_isPasswordVisible;
                   });
                 }),
                 SizedBox(height: 16),
-                _buildPasswordField("Confirm Password",
-                    _confirmPasswordController, _isConfirmPasswordVisible, () {
+                _buildPasswordField("Confirm Password", _confirmPasswordController, _isConfirmPasswordVisible, () {
                   setState(() {
                     _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
                   });
@@ -102,16 +99,40 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
                 SizedBox(height: 16),
-                TextButton(
-                  onPressed: () {
-                  Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => SignInScreen()),
-      );                  },
-                  child: Text(
-                    "Already have an account? Login",
-                    style: TextStyle(color: Color(0xFFD7B7A5)),
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("Already have an account? ",
+                        style: TextStyle(color: Color(0xFFD7B7A5))),
+                    MouseRegion(
+                      onEnter: (_) => setState(() => _isHoveringLogin = true),
+                      onExit: (_) => setState(() => _isHoveringLogin = false),
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => SignInScreen()),
+                          );
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: _isHoveringLogin
+                                ? Color(0xFFD7B7A5)
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            "Login",
+                            style: TextStyle(
+                              color: _isHoveringLogin ? Colors.black : Color(0xFFD7B7A5),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

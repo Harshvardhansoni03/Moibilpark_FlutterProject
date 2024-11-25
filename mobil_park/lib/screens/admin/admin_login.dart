@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:mobil_park/controller/admin/admin_auth_controller.dart';
 import 'package:mobil_park/model/admin/admin_auth_model.dart';
 import 'package:mobil_park/screens/admin/admin_home.dart';
-import 'package:mobil_park/screens/admin/admin_registration.dart';
 
 class AdminSignInScreen extends StatefulWidget {
   @override
@@ -34,11 +33,10 @@ class _AdminSignInScreenState extends State<AdminSignInScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.admin_panel_settings,
-                      color: Color(0xFFD7B7A5), size: 36),
-                  const SizedBox(width: 8),
-                  const Text(
-                    "Admin Login",
+                  Icon(Icons.directions_car, color: Color(0xFFD7B7A5), size: 36),
+                  SizedBox(width: 8),
+                  Text(
+                    "MobilPark",
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -72,83 +70,8 @@ class _AdminSignInScreenState extends State<AdminSignInScreen> {
                     const SizedBox(height: 16),
                     _buildPasswordField(),
                     const SizedBox(height: 24),
-                    GestureDetector(
-                      onTap: () async {
-                        final username = _usernameController.text.trim();
-                        final password = _passwordController.text.trim();
-
-                        // Ensure the username and password are not empty
-                        if (username.isEmpty || password.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Please enter both username and password'),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                          return;
-                        }
-
-                        final isLoggedIn = await _authController.signInAsAdmin(username, password);
-
-                        if (isLoggedIn) {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => AdminHomeScreen(),
-                            ),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Invalid username or password'),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        }
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF939185),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Center(
-                          child: Text(
-                            "Admin Sign-In",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                    _buildSignInButton(context),
                     const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          "Don't have an account?",
-                          style: TextStyle(color: Colors.white70),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => AdminRegisterScreen(),
-                              ),
-                            );
-                          },
-                          child: const Text(
-                            "Register",
-                            style: TextStyle(color: Color(0xFFB5A96B)),
-                          ),
-                        ),
-                      ],
-                    ),
                   ],
                 ),
               ),
@@ -208,6 +131,91 @@ class _AdminSignInScreenState extends State<AdminSignInScreen> {
           borderSide: BorderSide(color: Colors.white),
         ),
       ),
+    );
+  }
+
+  Widget _buildSignInButton(BuildContext context) {
+    bool isHovering = false;
+
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return MouseRegion(
+          onEnter: (_) {
+            setState(() {
+              isHovering = true;
+            });
+          },
+          onExit: (_) {
+            setState(() {
+              isHovering = false;
+            });
+          },
+          child: GestureDetector(
+            onTap: () async {
+              final username = _usernameController.text.trim();
+              final password = _passwordController.text.trim();
+
+              // Ensure the username and password are not empty
+              if (username.isEmpty || password.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Please enter both username and password'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+                return;
+              }
+
+              final isLoggedIn = await _authController.signInAsAdmin(username, password);
+
+              if (isLoggedIn) {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AdminHomeScreen(),
+                  ),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Invalid username or password'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            },
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: double.infinity,
+              height: 50,
+              decoration: BoxDecoration(
+                color: isHovering ? const Color(0xFFA5A599) : const Color(0xFF939185),
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: isHovering
+                    ? [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 8,
+                          spreadRadius: 2,
+                          offset: const Offset(0, 4),
+                        ),
+                      ]
+                    : null,
+              ),
+              child: const Center(
+                child: Text(
+                  "Admin Sign-In",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

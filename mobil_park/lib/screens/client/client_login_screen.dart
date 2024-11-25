@@ -1,4 +1,3 @@
-// sign_in_screen.dart
 import 'package:flutter/material.dart';
 import 'package:mobil_park/controller/faculty/faculty_auth_controller.dart';
 import 'package:mobil_park/model/faculty/faculty_auth_model.dart';
@@ -15,6 +14,7 @@ class _SignInScreenState extends State<SignInScreen> {
   final AuthModel _authModel = AuthModel();
   late AuthController _authController;
   bool _isPasswordVisible = false;
+  bool _isHoveringSignIn = false; // State for hover effect on "Sign-in" button
 
   @override
   void initState() {
@@ -67,7 +67,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       style: TextStyle(color: Color(0xFFD7B7A5)),
                       decoration: InputDecoration(
                         hintText: "Email",
-                        hintStyle: TextStyle(color: Colors.white),
+                        hintStyle: TextStyle(color: Colors.white70),
                         prefixIcon: Icon(Icons.email, color: Colors.white70),
                         enabledBorder: UnderlineInputBorder(
                           borderSide: BorderSide(color: Color(0xFFD7B7A5)),
@@ -108,27 +108,33 @@ class _SignInScreenState extends State<SignInScreen> {
                       ),
                     ),
                     SizedBox(height: 24),
-                    GestureDetector(
-                      onTap: () {
-                        _authController.signIn(
-                          _emailController.text.trim(),
-                          _passwordController.text,
-                        );
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: Color(0xFF939185),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Center(
-                          child: Text(
-                            "Sign-in",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
+                    MouseRegion(
+                      onEnter: (_) => setState(() => _isHoveringSignIn = true),
+                      onExit: (_) => setState(() => _isHoveringSignIn = false),
+                      child: GestureDetector(
+                        onTap: () {
+                          _authController.signIn(
+                            _emailController.text.trim(),
+                            _passwordController.text,
+                          );
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: _isHoveringSignIn
+                                ? Color(0xFFD7B7A5) // Hover color
+                                : Color(0xFF939185),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Center(
+                            child: Text(
+                              "Sign-in",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
