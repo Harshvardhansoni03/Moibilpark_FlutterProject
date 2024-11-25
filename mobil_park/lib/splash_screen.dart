@@ -48,7 +48,7 @@ class _SplashScreenState extends State<SplashScreen>
     Timer(Duration(milliseconds: 3000), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => LocationServices()), // Replace with the screen you want
+        MaterialPageRoute(builder: (context) => RegisterScreen()), // Replace with the screen you want
       );
     });
   }

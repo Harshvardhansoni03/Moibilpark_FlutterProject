@@ -10,7 +10,7 @@ plugins {
 
 android {
     namespace = "com.example.mobil_park"
-    compileSdk = 33 // Use the latest compileSdk version.
+    compileSdk = 34 // Use the latest compileSdk version.
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
