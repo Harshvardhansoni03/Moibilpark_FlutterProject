@@ -1,129 +1,130 @@
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:geocoding/geocoding.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-class LocationServices extends StatefulWidget {
-  const LocationServices({super.key});
-
-  @override
-  State<LocationServices> createState() => _LocationServicesState();
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(MyApp());
 }
 
-class _LocationServicesState extends State<LocationServices> {
-  String? latitude;
-  String? longitude;
-  String? address;
-
-  Future<bool> checkAndRequestLocationPermission() async {
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied ||
-        permission == LocationPermission.deniedForever) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied ||
-          permission == LocationPermission.deniedForever) {
-        return false;
-      }
-    }
-    return true;
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'University Parking',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: ParkingHomePage(),
+    );
   }
+}
 
-  Future<void> getCurrentLocationAndAddress() async {
-    bool hasPermission = await checkAndRequestLocationPermission();
-    if (!hasPermission) {
-      setState(() {
-        address = "Location permissions are denied. Please enable them.";
-      });
-      return;
-    }
+class ParkingHomePage extends StatefulWidget {
+  @override
+  _ParkingHomePageState createState() => _ParkingHomePageState();
+}
 
-    try {
-      Position currentPosition = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.best,
-      );
-
-      setState(() {
-        latitude = currentPosition.latitude.toString();
-        longitude = currentPosition.longitude.toString();
-      });
-
-      await fetchAddressFromCoordinates(
-        currentPosition.latitude,
-        currentPosition.longitude,
-      );
-    } catch (e) {
-      print("Error in fetching location: $e");
-      setState(() {
-        address = "Failed to fetch location.";
-      });
-    }
-  }
-
-  Future<void> fetchAddressFromCoordinates(double latitude, double longitude) async {
-    try {
-      List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
-
-      if (placemarks.isNotEmpty) {
-        Placemark place = placemarks[0];
-        setState(() {
-          address =
-              "${place.street ?? "N/A"}, ${place.locality ?? "N/A"}, ${place.administrativeArea ?? "N/A"}, ${place.country ?? "N/A"}";
-        });
-      } else {
-        setState(() {
-          address = "No address found for the given location.";
-        });
-      }
-    } catch (e) {
-      print("Error in reverse geocoding: $e");
-      setState(() {
-        address = "Error retrieving address.";
-      });
-    }
-  }
+class _ParkingHomePageState extends State<ParkingHomePage> {
+  // Firebase Firestore collection reference
+  final CollectionReference parkingSpaces =
+      FirebaseFirestore.instance.collection('Parking_Spaces');
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF2C2E3A),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF2C2E3A),
-        title: const Text(
-          "MobilPark",
-          style: TextStyle(
-            color: Color(0xFFE4C2B4),
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
+        title: Text('Parking Spaces'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              // Add search functionality if needed
+            },
           ),
-        ),
-        elevation: 0,
+        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              latitude != null && longitude != null
-                  ? "Latitude: $latitude\nLongitude: $longitude"
-                  : "Your location is not fetched yet.",
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Color(0xFFE4C2B4), fontSize: 18),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: parkingSpaces.snapshots(), // Stream data from Firebase
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return Center(child: Text('No parking spaces available'));
+          }
+
+          final spaces = snapshot.data!.docs;
+
+          return ListView.builder(
+            itemCount: spaces.length,
+            itemBuilder: (context, index) {
+              final space = spaces[index];
+              final capacity = space['Capacity'];
+              final occupied = space['Occupied'];
+              final spaceName = space['SpaceName'];
+
+              // Calculate available slots
+              final available = capacity - occupied;
+
+              return Card(
+                margin: EdgeInsets.all(10),
+                child: ListTile(
+                  title: Text('Space: $spaceName'),
+                  subtitle: Text('Available Slots: $available/$capacity'),
+                  trailing: Icon(
+                    available > 0 ? Icons.check_circle : Icons.cancel,
+                    color: available > 0 ? Colors.green : Colors.red,
+                  ),
+                  onTap: available > 0
+                      ? () {
+                          // Navigate to booking page or show details
+                          _showBookingDialog(context, space.id, available);
+                        }
+                      : null,
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  // Booking dialog to reserve a parking space
+  void _showBookingDialog(BuildContext context, String spaceId, int available) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Reserve Parking Space'),
+          content: Text('Do you want to reserve this space?'),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                // Reserve parking space (update Firestore)
+                await parkingSpaces.doc(spaceId).update({
+                  'Occupied': FieldValue.increment(1),
+                });
+                Navigator.of(context).pop();
+              },
+              child: Text('Yes'),
             ),
-            const SizedBox(height: 10),
-            Text(
-              address ?? "Fetching address...",
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Color(0xFFE4C2B4), fontSize: 16),
-            ),
-            const SizedBox(height: 30),
-            ElevatedButton(
-              onPressed: getCurrentLocationAndAddress,
-              child: const Text("Grab Location and Address"),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('No'),
             ),
           ],
-        ),
-      ),
+        );
+      },
     );
   }
 }
