@@ -1,6 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobil_park/firebase_options.dart';
 import 'package:mobil_park/splash_screen.dart';
 import 'screens/client/client_login_screen.dart';
@@ -12,21 +11,11 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  final prefs = await SharedPreferences.getInstance();
-  final hasSeenSplash = prefs.getBool('hasSeenSplash') ?? false;
-  final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
-
-  runApp(MyApp(
-    initialRoute: hasSeenSplash
-        ? (isLoggedIn ? '/login' : '/register')
-        : '/splash',
-  ));
+  runApp(MyApp(initialRoute: '',));
 }
 
 class MyApp extends StatelessWidget {
-  final String initialRoute;
-
-  const MyApp({super.key, required this.initialRoute});
+  const MyApp({super.key, required String initialRoute});
 
   @override
   Widget build(BuildContext context) {
@@ -37,12 +26,41 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      initialRoute: initialRoute,
-      routes: {
-        '/splash': (context) => SplashScreen(),
-        '/register': (context) => RegisterScreen(),
-        '/login': (context) => SignInScreen(),
-      },
+      home: SplashScreen(),
+    );
+  }
+}
+
+class SplashScreen extends StatelessWidget {
+  const SplashScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // Simulating an artificial delay to show splash screen
+    Future.delayed(const Duration(seconds: 3), () {
+      // Navigate to either login or registration screen
+      final isLoggedIn = false; // Replace with actual login state logic.
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => isLoggedIn
+              ?  SignInScreen()
+              :  RegisterScreen(),
+        ),
+      );
+    });
+
+    return Scaffold(
+      body: Center(
+        child: Text(
+          'Welcome to MobilPark',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.deepPurple,
+          ),
+        ),
+      ),
     );
   }
 }
