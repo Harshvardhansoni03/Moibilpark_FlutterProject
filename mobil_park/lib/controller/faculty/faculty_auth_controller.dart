@@ -47,3 +47,4 @@ class AuthController {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 }
+//added comment only 
