@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:mobil_park/controller/faculty/faculty_registration_controller.dart';
 import 'package:mobil_park/model/faculty/faculty_user.dart';
 import 'package:mobil_park/screens/client/client_login_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class RegisterScreen extends StatefulWidget {
   @override
@@ -22,35 +21,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
-  bool _isHoveringLogin = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadUserDetails(); // Load saved user details during initialization
-  }
-
-  Future<void> _saveUserDetails() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('name', _nameController.text.trim());
-    await prefs.setString('phone', _phoneController.text.trim());
-    await prefs.setString('email', _emailController.text.trim());
-    await prefs.setString('carNumber', _carNumberController.text.trim());
-    await prefs.setString(
-        'facultyEmploymentNumber', _facultyEmploymentNumberController.text.trim());
-  }
-
-  Future<void> _loadUserDetails() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _nameController.text = prefs.getString('name') ?? '';
-      _phoneController.text = prefs.getString('phone') ?? '';
-      _emailController.text = prefs.getString('email') ?? '';
-      _carNumberController.text = prefs.getString('carNumber') ?? '';
-      _facultyEmploymentNumberController.text =
-          prefs.getString('facultyEmploymentNumber') ?? '';
-    });
-  }
+  bool _isHoveringLogin = false; // State for hover effect on "Login" container
 
   @override
   Widget build(BuildContext context) {
@@ -66,8 +37,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.directions_car,
-                        color: Color(0xFFD7B7A5), size: 36),
+                    Icon(Icons.directions_car, color: Color(0xFFD7B7A5), size: 36),
                     SizedBox(width: 8),
                     Text(
                       "MobilPark",
@@ -88,28 +58,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 _buildTextField("Email ID", _emailController, Icons.email,
                     inputType: TextInputType.emailAddress),
                 SizedBox(height: 16),
-                _buildTextField("Car Number", _carNumberController,
-                    Icons.directions_car),
+                _buildTextField("Car Number", _carNumberController, Icons.directions_car),
                 SizedBox(height: 16),
-                _buildTextField("Faculty Employment Number",
-                    _facultyEmploymentNumberController, Icons.badge),
+                _buildTextField("Faculty Employment Number", _facultyEmploymentNumberController, Icons.badge),
                 SizedBox(height: 16),
-                _buildPasswordField(
-                    "Password", _passwordController, _isPasswordVisible, () {
+                _buildPasswordField("Password", _passwordController, _isPasswordVisible, () {
                   setState(() {
                     _isPasswordVisible = !_isPasswordVisible;
                   });
                 }),
                 SizedBox(height: 16),
-                _buildPasswordField("Confirm Password",
-                    _confirmPasswordController, _isConfirmPasswordVisible, () {
+                _buildPasswordField("Confirm Password", _confirmPasswordController, _isConfirmPasswordVisible, () {
                   setState(() {
                     _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
                   });
                 }),
                 SizedBox(height: 24),
                 ElevatedButton(
-                  onPressed: () async {
+                  onPressed: () {
                     final userModel = UserModel(
                       name: _nameController.text.trim(),
                       phone: _phoneController.text.trim(),
@@ -117,19 +83,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       password: _passwordController.text,
                       confirmPassword: _confirmPasswordController.text,
                       carNumber: _carNumberController.text.trim(),
-                      facultyEmploymentNumber:
-                          _facultyEmploymentNumberController.text.trim(),
+                      facultyEmploymentNumber: _facultyEmploymentNumberController.text.trim(),
                     );
-                    // Save to Shared Preferences
-                    await _saveUserDetails();
                     _controller.registerUser(userModel, context);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFFD7B7A5),
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 40.0, vertical: 12.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 12.0),
                     child: Text(
                       "Register",
                       style: TextStyle(fontSize: 18, color: Colors.black),
@@ -149,13 +111,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         onTap: () {
                           Navigator.pushReplacement(
                             context,
-                            MaterialPageRoute(
-                                builder: (context) => LoginScreen()),
+                            MaterialPageRoute(builder: (context) => SignInScreen()),
                           );
                         },
                         child: Container(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
+                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
                             color: _isHoveringLogin
                                 ? Color(0xFFD7B7A5)
@@ -165,9 +125,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           child: Text(
                             "Login",
                             style: TextStyle(
-                              color: _isHoveringLogin
-                                  ? Colors.black
-                                  : Color(0xFFD7B7A5),
+                              color: _isHoveringLogin ? Colors.black : Color(0xFFD7B7A5),
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -185,8 +143,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Widget _buildTextField(String label, TextEditingController controller,
-      IconData icon,
-      {TextInputType inputType = TextInputType.text}) {
+      IconData icon, {TextInputType inputType = TextInputType.text}) {
     return TextField(
       controller: controller,
       keyboardType: inputType,
