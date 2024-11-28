@@ -94,7 +94,7 @@ class _AddSpaceScreenState extends State<AddSpaceScreen> {
           borderSide: BorderSide(color: Color(0xFFD7B7A5)),
         ),
         focusedBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.white),
+          borderSide: BorderSide(color: Color(0xFFD7B7A5)),
         ),
       ),
     );

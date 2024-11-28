@@ -1,8 +1,24 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'screens/client/client_login_screen.dart';
-import 'screens/client/client_registration_screen.dart';
+import 'package:mobil_park/screens/admin/admin_home.dart';
+import 'package:mobil_park/screens/admin/admin_login.dart';
+import 'package:mobil_park/screens/client/client_login_screen.dart';
+import 'package:mobil_park/screens/client/client_registration_screen.dart';
+import 'package:mobil_park/screens/admin/admin_registration.dart';
+
+import 'screens/client/client_home_screen.dart';
+
+void main() => runApp(MobilParkApp());
+
+class MobilParkApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: SplashScreen(),
+    );
+  }
+}
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -28,21 +44,12 @@ class _SplashScreenState extends State<SplashScreen>
       curve: Curves.easeInOut,
     ));
 
-    _checkNavigation();
-  }
-
-  Future<void> _checkNavigation() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    // Save splash screen visit state
-    await prefs.setBool('hasSeenSplash', true);
-
-    final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
-
-    // Navigate to login or register screen after splash
+    // Navigate to the next screen after 3 seconds
     Timer(Duration(milliseconds: 3000), () {
-      Navigator.pushReplacementNamed(
-          context, isLoggedIn ? '/login' : '/register');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => ParkingHomePage()), // Replace with the screen you want
+      );
     });
   }
 
