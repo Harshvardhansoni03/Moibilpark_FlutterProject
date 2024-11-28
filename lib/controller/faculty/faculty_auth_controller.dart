@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobil_park/model/faculty/faculty_auth_model.dart';
-import 'package:mobil_park/screens/client/client_home_screen.dart'; // Replace with correct screen after login
+import 'package:mobil_park/screens/client/client_home_screen.dart';
+import 'package:mobil_park/screens/client/client_profile.dart'; // Replace with correct screen after login
 
 class AuthController {
   final AuthModel _authModel;
