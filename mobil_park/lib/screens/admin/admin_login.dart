@@ -13,6 +13,7 @@ class _AdminSignInScreenState extends State<AdminSignInScreen> {
   final _passwordController = TextEditingController();
   late final AuthController _authController;
   bool _isPasswordVisible = false;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -24,60 +25,59 @@ class _AdminSignInScreenState extends State<AdminSignInScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF252839),
-      body: Stack(
-        children: [
-          Align(
-            alignment: Alignment.topLeft,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.directions_car, color: Color(0xFFD7B7A5), size: 36),
-                  SizedBox(width: 8),
-                  Text(
-                    "MobilPark",
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFFD7B7A5),
-                    ),
-                  ),
-                ],
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 32.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildHeader(),
+              const SizedBox(height: 40),
+              _buildLogo(),
+              const SizedBox(height: 40),
+              _buildTextField(
+                controller: _usernameController,
+                hintText: "Admin Username",
+                icon: Icons.person,
               ),
-            ),
+              const SizedBox(height: 16),
+              _buildPasswordField(),
+              const SizedBox(height: 24),
+              _buildSignInButton(),
+            ],
           ),
-          Center(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 60),
-                    SizedBox(
-                      height: 200,
-                      child: Image.asset(
-                        'assets/images/car_r.png',
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                    _buildTextField(
-                      controller: _usernameController,
-                      hintText: "Admin Username",
-                      icon: Icons.person,
-                    ),
-                    const SizedBox(height: 16),
-                    _buildPasswordField(),
-                    const SizedBox(height: 24),
-                    _buildSignInButton(context),
-                    const SizedBox(height: 16),
-                  ],
-                ),
-              ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Align(
+      alignment: Alignment.topLeft,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: const [
+          Icon(Icons.directions_car, color: Color(0xFFD7B7A5), size: 36),
+          SizedBox(width: 8),
+          Text(
+            "MobilPark",
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFFD7B7A5),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildLogo() {
+    return SizedBox(
+      height: 200,
+      child: Image.asset(
+        'assets/images/car_r.png',
+        fit: BoxFit.cover,
       ),
     );
   }
@@ -94,11 +94,14 @@ class _AdminSignInScreenState extends State<AdminSignInScreen> {
         hintText: hintText,
         hintStyle: const TextStyle(color: Colors.white70),
         prefixIcon: Icon(icon, color: Colors.white70),
-        enabledBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Color(0xFFD7B7A5)),
+        contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+        enabledBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: Color(0xFFD7B7A5)),
+          borderRadius: BorderRadius.circular(10),
         ),
-        focusedBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Color(0xFFD7B7A5)),
+        focusedBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: Color(0xFFD7B7A5)),
+          borderRadius: BorderRadius.circular(10),
         ),
       ),
     );
@@ -124,86 +127,34 @@ class _AdminSignInScreenState extends State<AdminSignInScreen> {
             });
           },
         ),
-        enabledBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Color(0xFFD7B7A5)),
+        contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+        enabledBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: Color(0xFFD7B7A5)),
+          borderRadius: BorderRadius.circular(10),
         ),
-        focusedBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.white),
+        focusedBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: Colors.white),
+          borderRadius: BorderRadius.circular(10),
         ),
       ),
     );
   }
 
-  Widget _buildSignInButton(BuildContext context) {
-    bool isHovering = false;
-
-    return StatefulBuilder(
-      builder: (context, setState) {
-        return MouseRegion(
-          onEnter: (_) {
-            setState(() {
-              isHovering = true;
-            });
-          },
-          onExit: (_) {
-            setState(() {
-              isHovering = false;
-            });
-          },
-          child: GestureDetector(
-            onTap: () async {
-              final username = _usernameController.text.trim();
-              final password = _passwordController.text.trim();
-
-              // Ensure the username and password are not empty
-              if (username.isEmpty || password.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Please enter both username and password'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-                return;
-              }
-
-              final isLoggedIn = await _authController.signInAsAdmin(username, password);
-
-              if (isLoggedIn) {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AdminHomeScreen(),
-                  ),
-                );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Invalid username or password'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              }
-            },
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              width: double.infinity,
-              height: 50,
-              decoration: BoxDecoration(
-                color: isHovering ? const Color(0xFFA5A599) : const Color(0xFF939185),
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: isHovering
-                    ? [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
-                          blurRadius: 8,
-                          spreadRadius: 2,
-                          offset: const Offset(0, 4),
-                        ),
-                      ]
-                    : null,
-              ),
-              child: const Center(
-                child: Text(
+  Widget _buildSignInButton() {
+    return GestureDetector(
+      onTap: _signIn,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: double.infinity,
+        height: 50,
+        decoration: BoxDecoration(
+          color: _isLoading ? Colors.grey : const Color(0xFF939185),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Center(
+          child: _isLoading
+              ? const CircularProgressIndicator(color: Colors.white)
+              : const Text(
                   "Admin Sign-In",
                   style: TextStyle(
                     color: Colors.white,
@@ -211,11 +162,49 @@ class _AdminSignInScreenState extends State<AdminSignInScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-              ),
-            ),
-          ),
-        );
-      },
+        ),
+      ),
     );
+  }
+
+  Future<void> _signIn() async {
+    FocusScope.of(context).unfocus();
+
+    final username = _usernameController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (username.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter both username and password'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    final isLoggedIn = await _authController.signInAsAdmin(username, password);
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    if (isLoggedIn) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => AdminHomeScreen()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Invalid username or password'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 }

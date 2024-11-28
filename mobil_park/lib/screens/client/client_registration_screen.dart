@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:mobil_park/controller/faculty/faculty_registration_controller.dart';
-import 'package:mobil_park/model/faculty/faculty_user.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:get/get.dart';
 import 'package:mobil_park/screens/client/client_login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -11,7 +11,6 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _controller = RegisterController();
 
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
@@ -25,6 +24,55 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _isConfirmPasswordVisible = false;
   bool _isHoveringLogin = false;
 
+  Future<void> _registerUser() async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        final email = _emailController.text.trim();
+        final password = _passwordController.text.trim();
+
+        // Register the user
+        UserCredential userCredential = await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(email: email, password: password);
+        User? user = userCredential.user;
+
+        if (user != null) {
+          // Send verification email
+          await user.sendEmailVerification();
+
+          Get.snackbar(
+            'Registration Successful',
+            'A verification email has been sent to $email. Please verify your email before logging in.',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.blue,
+            colorText: Colors.white,
+          );
+
+          // Redirect to login screen
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => SignInScreen()),
+          );
+        }
+      } on FirebaseAuthException catch (e) {
+        Get.snackbar(
+          'Registration Failed',
+          e.message ?? 'An error occurred during registration.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      } catch (e) {
+        Get.snackbar(
+          'Error',
+          'An unexpected error occurred. Please try again later.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,11 +80,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 77.0),
             child: Form(
               key: _formKey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -58,18 +107,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   _buildTextField("Name", _nameController, Icons.person),
                   SizedBox(height: 16),
                   _buildTextField(
-                    "Phone number", 
-                    _phoneController, 
-                    Icons.phone,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(10),
-                    ]),
+                      "Phone number", _phoneController, Icons.phone,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(10),
+                      ]),
                   SizedBox(height: 16),
                   _buildTextField("Email ID", _emailController, Icons.email,
-                      inputType: 
-                      TextInputType.emailAddress,
-                      ),
+                      inputType: TextInputType.emailAddress),
                   SizedBox(height: 16),
                   _buildTextField(
                     "Car Number",
@@ -115,28 +160,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       _confirmPasswordController,
                       _isConfirmPasswordVisible, () {
                     setState(() {
-                      _isConfirmPasswordVisible =
-                          !_isConfirmPasswordVisible;
+                      _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
                     });
                   }),
                   SizedBox(height: 24),
                   ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        // Form is valid, process data
-                        final userModel = UserModel(
-                          name: _nameController.text.trim(),
-                          phone: _phoneController.text.trim(),
-                          email: _emailController.text.trim(),
-                          password: _passwordController.text,
-                          confirmPassword: _confirmPasswordController.text,
-                          carNumber: _carNumberController.text.trim(),
-                          facultyEmploymentNumber:
-                              _facultyEmploymentNumberController.text.trim(),
-                        );
-                        _controller.registerUser(userModel, context);
-                      }
-                    },
+                    onPressed: _registerUser,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFFD7B7A5),
                     ),
@@ -154,7 +183,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text("Already have an account? ",
-                          style: TextStyle(color: Color(0xFFD7B7A5))),
+                          style: TextStyle(color: Colors.white70)),
                       MouseRegion(
                         onEnter: (_) => setState(() => _isHoveringLogin = true),
                         onExit: (_) => setState(() => _isHoveringLogin = false),
@@ -217,11 +246,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
         hintText: hint,
         hintStyle: TextStyle(color: Colors.grey),
         labelStyle: TextStyle(color: Color(0xFFD7B7A5)),
-        enabledBorder: UnderlineInputBorder(
+        contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+        enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(color: Color(0xFFD7B7A5)),
+          borderRadius: BorderRadius.circular(10),
         ),
-        focusedBorder: UnderlineInputBorder(
+        focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(color: Colors.white),
+          borderRadius: BorderRadius.circular(10),
         ),
         prefixIcon: Icon(icon, color: Color(0xFFD7B7A5)),
       ),
@@ -241,21 +273,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
       decoration: InputDecoration(
         labelText: label,
         labelStyle: TextStyle(color: Color(0xFFD7B7A5)),
-        enabledBorder: UnderlineInputBorder(
+        contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+        enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(color: Color(0xFFD7B7A5)),
+          borderRadius: BorderRadius.circular(10),
         ),
-        focusedBorder: UnderlineInputBorder(
+        focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(color: Colors.white),
+          borderRadius: BorderRadius.circular(10),
         ),
         prefixIcon: Icon(Icons.lock, color: Color(0xFFD7B7A5)),
         suffixIcon: IconButton(
           icon: Icon(
-            isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+            isPasswordVisible
+                ? Icons.visibility
+                : Icons.visibility_off,
             color: Color(0xFFD7B7A5),
           ),
           onPressed: toggleVisibility,
         ),
       ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return '$label is required';
+        }
+        return null;
+      },
     );
   }
 }
