@@ -37,132 +37,144 @@ class _SignInScreenState extends State<SignInScreen> {
                 children: [
                   Icon(Icons.directions_car, color: Color(0xFFD7B7A5), size: 36),
                   SizedBox(width: 8),
-                  Text("MobilPark",
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFFD7B7A5),
-                      )),
+                  Text(
+                    "MobilPark",
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFFD7B7A5),
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
           Center(
             child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    SizedBox(height: 60),
-                    Container(
-                      height: 200,
-                      child: Image.asset(
-                        'assets/images/car_r.png',
-                        fit: BoxFit.cover,
+              padding: const EdgeInsets.symmetric(horizontal: 77.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(height: 60),
+                  Container(
+                    height: 200,
+                    child: Image.asset(
+                      'assets/images/car_r.png',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  SizedBox(height: 40),
+                  TextField(
+                    controller: _emailController,
+                    style: TextStyle(color: Color(0xFFD7B7A5)),
+                    decoration: InputDecoration(
+                      hintText: "Email",
+                      hintStyle: TextStyle(color: Colors.white70),
+                      prefixIcon: Icon(Icons.email, color: Colors.white70),
+                      contentPadding:
+                          EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xFFD7B7A5)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xFFD7B7A5)),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    SizedBox(height: 32),
-                    TextField(
-                      controller: _emailController,
-                      style: TextStyle(color: Color(0xFFD7B7A5)),
-                      decoration: InputDecoration(
-                        hintText: "Email",
-                        hintStyle: TextStyle(color: Colors.white70),
-                        prefixIcon: Icon(Icons.email, color: Colors.white70),
-                        enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Color(0xFFD7B7A5)),
+                  ),
+                  SizedBox(height: 16),
+                  TextField(
+                    controller: _passwordController,
+                    obscureText: !_isPasswordVisible,
+                    style: TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      hintText: "Password",
+                      hintStyle: TextStyle(color: Colors.white70),
+                      prefixIcon: Icon(Icons.lock, color: Colors.white70),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _isPasswordVisible
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          color: Colors.white70,
                         ),
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Color(0xFFD7B7A5)),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 16),
-                    TextField(
-                      controller: _passwordController,
-                      obscureText: !_isPasswordVisible,
-                      style: TextStyle(color: Colors.white),
-                      decoration: InputDecoration(
-                        hintText: "Password",
-                        hintStyle: TextStyle(color: Colors.white70),
-                        prefixIcon: Icon(Icons.lock, color: Colors.white70),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _isPasswordVisible
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                            color: Colors.white70,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _isPasswordVisible = !_isPasswordVisible;
-                            });
-                          },
-                        ),
-                        enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Color(0xFFD7B7A5)),
-                        ),
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.white),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 24),
-                    MouseRegion(
-                      onEnter: (_) => setState(() => _isHoveringSignIn = true),
-                      onExit: (_) => setState(() => _isHoveringSignIn = false),
-                      child: GestureDetector(
-                        onTap: () {
-                          _authController.signIn(
-                            _emailController.text.trim(),
-                            _passwordController.text,
-                          );
+                        onPressed: () {
+                          setState(() {
+                            _isPasswordVisible = !_isPasswordVisible;
+                          });
                         },
-                        child: Container(
-                          width: double.infinity,
-                          height: 50,
-                          decoration: BoxDecoration(
-                            color: _isHoveringSignIn
-                                ? Color(0xFFD7B7A5) // Hover color
-                                : Color(0xFF939185),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Center(
-                            child: Text(
-                              "Sign-in",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
+                      ),
+                      contentPadding:
+                          EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xFFD7B7A5)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xFFD7B7A5)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 24),
+                  MouseRegion(
+                    onEnter: (_) => setState(() => _isHoveringSignIn = true),
+                    onExit: (_) => setState(() => _isHoveringSignIn = false),
+                    child: GestureDetector(
+                      onTap: () {
+                        _authController.signIn(
+                          _emailController.text.trim(),
+                          _passwordController.text,
+                        );
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: _isHoveringSignIn
+                              ? Color(0xFFD7B7A5) // Hover color
+                              : Color(0xFF939185),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Center(
+                          child: Text(
+                            "Sign-in",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
                       ),
                     ),
-                    SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text("Don’t have an Account?",
-                            style: TextStyle(color: Colors.white70)),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => RegisterScreen()),
-                            );
-                          },
-                          child: Text(
-                            "Sign up",
-                            style: TextStyle(color: Color(0xFFB5A96B)),
-                          ),
+                  ),
+                  SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Don’t have an Account?",
+                        style: TextStyle(color: Colors.white70),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => RegisterScreen()),
+                          );
+                        },
+                        child: Text(
+                          "Sign up",
+                          style: TextStyle(color: Color(0xFFB5A96B)),
                         ),
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),
