@@ -5,6 +5,7 @@ import 'package:mobil_park/screens/admin/admin_login.dart';
 import 'package:mobil_park/screens/client/client_login_screen.dart';
 import 'package:mobil_park/screens/client/client_registration_screen.dart';
 import 'package:mobil_park/screens/admin/admin_registration.dart';
+import 'package:mobil_park/screens/client/location_services.dart';
 import 'package:mobil_park/welcome_screen.dart';
 
 import 'screens/client/client_home_screen.dart';
@@ -49,7 +50,7 @@ class _SplashScreenState extends State<SplashScreen>
     Timer(Duration(milliseconds: 3000), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => MyApp()), // Replace with the screen you want
+        MaterialPageRoute(builder: (context) => WelcomeScreen()), // Replace with the screen you want
       );
     });
   }
