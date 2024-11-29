@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:geolocator/geolocator.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,6 +37,54 @@ class _ParkingHomePageState extends State<ParkingHomePage> {
   final CollectionReference parkingSpaces =
       FirebaseFirestore.instance.collection('Parking_Spaces');
 
+  String? latitude;
+  String? longitude;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserLocation();
+  }
+
+  Future<bool> checkAndRequestLocationPermission() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  Future<void> fetchUserLocation() async {
+    bool hasPermission = await checkAndRequestLocationPermission();
+    if (!hasPermission) {
+      setState(() {
+        latitude = "Permission Denied";
+        longitude = "Permission Denied";
+      });
+      return;
+    }
+
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.best,
+      );
+      setState(() {
+        latitude = position.latitude.toStringAsFixed(4);
+        longitude = position.longitude.toStringAsFixed(4);
+      });
+    } catch (e) {
+      setState(() {
+        latitude = "Error";
+        longitude = "Error";
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,10 +92,10 @@ class _ParkingHomePageState extends State<ParkingHomePage> {
         backgroundColor: const Color(0xFF1C1F2A),
         elevation: 0,
         title: Row(
-          children: const [
-            Icon(Icons.directions_car, color: Color(0xFFF4A6A6), size: 36),
-            SizedBox(width: 10),
-            Text(
+          children: [
+            const Icon(Icons.directions_car, color: Color(0xFFF4A6A6), size: 36),
+            const SizedBox(width: 10),
+            const Text(
               'MobilPark',
               style: TextStyle(
                 color: Color(0xFFF4A6A6),
@@ -54,6 +103,21 @@ class _ParkingHomePageState extends State<ParkingHomePage> {
                 fontWeight: FontWeight.bold,
               ),
             ),
+            const Spacer(),
+            if (latitude != null && longitude != null)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    'Latitude: $latitude',
+                    style: const TextStyle(color: Colors.white70, fontSize: 20),
+                  ),
+                  Text(
+                    'Longitude: $longitude',
+                    style: const TextStyle(color: Colors.white70, fontSize: 20),
+                  ),
+                ],
+              ),
           ],
         ),
       ),
@@ -61,12 +125,16 @@ class _ParkingHomePageState extends State<ParkingHomePage> {
         stream: parkingSpaces.snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator(color: Colors.white));
+            return const Center(
+                child: CircularProgressIndicator(color: Colors.white));
           }
 
           if (snapshot.hasError) {
             return Center(
-              child: Text('Error: ${snapshot.error}', style: Theme.of(context).textTheme.bodyMedium),
+              child: Text(
+                'Error: ${snapshot.error}',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
             );
           }
 
@@ -112,48 +180,10 @@ class _ParkingHomePageState extends State<ParkingHomePage> {
                     const SizedBox(height: 8),
                     Text(
                       'Available Slots: $available/$capacity',
-                      style: const TextStyle(fontSize: 16, color: Colors.white70),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        TextButton.icon(
-                          onPressed: occupied > 0
-                              ? () {
-                                  _updateOccupiedCount(space.id, -1);
-                                }
-                              : null,
-                          icon: const Icon(Icons.remove, color: Color(0xFFF4A6A6)),
-                          label: const Text(
-                            'Release Slot',
-                            style: TextStyle(color: Colors.white70),
-                          ),
-                        ),
-                        TextButton.icon(
-                          onPressed: available > 0
-                              ? () {
-                                  _updateOccupiedCount(space.id, 1);
-                                }
-                              : () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                        'Parking is full. No available slots.',
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                      backgroundColor: Colors.red,
-                                      duration: Duration(seconds: 2),
-                                    ),
-                                  );
-                                },
-                          icon: const Icon(Icons.add, color: Color(0xFFF4A6A6)),
-                          label: const Text(
-                            'Reserve Slot',
-                            style: TextStyle(color: Colors.white70),
-                          ),
-                        ),
-                      ],
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.white70,
+                      ),
                     ),
                   ],
                 ),
@@ -163,17 +193,5 @@ class _ParkingHomePageState extends State<ParkingHomePage> {
         },
       ),
     );
-  }
-
-  Future<void> _updateOccupiedCount(String spaceId, int delta) async {
-    try {
-      await parkingSpaces.doc(spaceId).update({
-        'Occupied': FieldValue.increment(delta),
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error updating parking space: $e')),
-      );
-    }
   }
 }
