@@ -24,13 +24,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
       title: 'MobilPark',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: SplashScreen(), // Set SplashScreen as the initial screen
+      home: SplashScreen(),
+      debugShowCheckedModeBanner: false, // Set SplashScreen as the initial screen
     );
   }
 }

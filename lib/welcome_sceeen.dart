@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobil_park/screens/admin/admin_login.dart';
+import 'package:mobil_park/screens/client/client_login_screen.dart';
 import 'package:mobil_park/screens/client/client_registration_screen.dart';
 
 void main() {
@@ -16,7 +17,7 @@ class WelcomeScreen extends StatelessWidget {
       routes: {
         '/': (context) => WelcomePage(),
         '/login': (context) => AdminSignInScreen(),
-        '/register': (context) => RegisterScreen(),
+        '/register': (context) => SignInScreen(),
       },
     );
   }
@@ -33,10 +34,10 @@ class WelcomePage extends StatelessWidget {
           Positioned(
             top: 50,
             left: 20,
-            child: Column(
+            child: Row(
               children: [
                 Icon(Icons.directions_car, size: 50, color: Color(0xFFD8B6A4)),
-                SizedBox(height: 8),
+                SizedBox(width: 8),
                 Text(
                   'MobilPark',
                   style: TextStyle(
@@ -57,13 +58,14 @@ class WelcomePage extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFFB4A99E),
                     padding: EdgeInsets.symmetric(horizontal: 50, vertical: 16),
+                    minimumSize: Size(200, 50), // Equal size for both buttons
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                   onPressed: () => Navigator.pushNamed(context, '/register'),
                   child: Text(
-                    'New User',
+                    'User',
                     style: TextStyle(fontSize: 18, color: Colors.white),
                   ),
                 ),
@@ -72,6 +74,7 @@ class WelcomePage extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFFB4A99E),
                     padding: EdgeInsets.symmetric(horizontal: 50, vertical: 16),
+                    minimumSize: Size(200, 50), // Equal size for both buttons
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -90,14 +93,15 @@ class WelcomePage extends StatelessWidget {
             bottom: 32,
             left: 0,
             right: 0,
-            child: Center(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Text(
                 'Park effortlessly, anytime, anywhere!',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 30,
                   color: Color(0xFFD8B6A4),
                 ),
-                textAlign: TextAlign.center,
+                textAlign: TextAlign.left,
               ),
             ),
           ),

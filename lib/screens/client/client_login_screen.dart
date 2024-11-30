@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mobil_park/controller/faculty/faculty_auth_controller.dart';
-import 'package:mobil_park/model/faculty/faculty_auth_model.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // Import Firebase for authentication
+import 'package:mobil_park/screens/client/client_home_screen.dart';
 import 'client_registration_screen.dart';
 
 class SignInScreen extends StatefulWidget {
@@ -11,21 +11,29 @@ class SignInScreen extends StatefulWidget {
 class _SignInScreenState extends State<SignInScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final AuthModel _authModel = AuthModel();
-  late AuthController _authController;
   bool _isPasswordVisible = false;
-  bool _isHoveringSignIn = false; // State for hover effect on "Sign-in" button
+  bool _isHoveringSignIn = false;
+  bool _isLoading = false; // To handle loading state
 
-  @override
-  void initState() {
-    super.initState();
-    _authController = AuthController(context, _authModel);
+  // Sign-in method
+  Future<bool> signIn(String email, String password) async {
+    try {
+      // Firebase authentication logic
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      return true; // Successful login
+    } catch (e) {
+      print("Login error: $e");
+      return false; // Failed login
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF252839),
+      backgroundColor: const Color(0xFF252839),
       body: Stack(
         children: [
           Align(
@@ -34,135 +42,174 @@ class _SignInScreenState extends State<SignInScreen> {
               padding: const EdgeInsets.all(16.0),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
-                children: [
+                children: const [
                   Icon(Icons.directions_car, color: Color(0xFFD7B7A5), size: 36),
                   SizedBox(width: 8),
-                  Text("MobilPark",
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFFD7B7A5),
-                      )),
+                  Text(
+                    "MobilPark",
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFFD7B7A5),
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
           Center(
             child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    SizedBox(height: 60),
-                    Container(
-                      height: 200,
-                      child: Image.asset(
-                        'assets/images/car_r.png',
-                        fit: BoxFit.cover,
+              padding: const EdgeInsets.symmetric(horizontal: 25.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 60),
+                  Container(
+                    height: 200,
+                    child: Image.asset(
+                      'assets/images/car_r.png',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                  TextField(
+                    controller: _emailController,
+                    style: const TextStyle(color: Color(0xFFD7B7A5)),
+                    decoration: InputDecoration(
+                      hintText: "Email",
+                      hintStyle: const TextStyle(color: Colors.white70),
+                      prefixIcon: const Icon(Icons.email, color: Colors.white70),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 15, horizontal: 20),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Color(0xFFD7B7A5)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Color(0xFFD7B7A5)),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    SizedBox(height: 32),
-                    TextField(
-                      controller: _emailController,
-                      style: TextStyle(color: Color(0xFFD7B7A5)),
-                      decoration: InputDecoration(
-                        hintText: "Email",
-                        hintStyle: TextStyle(color: Colors.white70),
-                        prefixIcon: Icon(Icons.email, color: Colors.white70),
-                        enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Color(0xFFD7B7A5)),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: _passwordController,
+                    obscureText: !_isPasswordVisible,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      hintText: "Password",
+                      hintStyle: const TextStyle(color: Colors.white70),
+                      prefixIcon: const Icon(Icons.lock, color: Colors.white70),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _isPasswordVisible
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          color: Colors.white70,
                         ),
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Color(0xFFD7B7A5)),
+                        onPressed: () {
+                          setState(() {
+                            _isPasswordVisible = !_isPasswordVisible;
+                          });
+                        },
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 15, horizontal: 20),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Color(0xFFD7B7A5)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Color(0xFFD7B7A5)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  MouseRegion(
+                    onEnter: (_) => setState(() => _isHoveringSignIn = true),
+                    onExit: (_) => setState(() => _isHoveringSignIn = false),
+                    child: GestureDetector(
+                      onTap: () async {
+                        setState(() {
+                          _isLoading = true; // Show loading indicator
+                        });
+
+                        bool success = await signIn(
+                          _emailController.text.trim(),
+                          _passwordController.text.trim(),
+                        );
+
+                        setState(() {
+                          _isLoading = false; // Hide loading indicator
+                        });
+
+                        if (success) {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ParkingHomePage()),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content:
+                                  Text("Login failed. Please try again."),
+                            ),
+                          );
+                        }
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: _isHoveringSignIn
+                              ? const Color(0xFFD7B7A5) // Hover color
+                              : const Color(0xFF939185),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Center(
+                          child: _isLoading
+                              ? const CircularProgressIndicator(
+                                  color: Colors.white,
+                                )
+                              : const Text(
+                                  "Sign-in",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                         ),
                       ),
                     ),
-                    SizedBox(height: 16),
-                    TextField(
-                      controller: _passwordController,
-                      obscureText: !_isPasswordVisible,
-                      style: TextStyle(color: Colors.white),
-                      decoration: InputDecoration(
-                        hintText: "Password",
-                        hintStyle: TextStyle(color: Colors.white70),
-                        prefixIcon: Icon(Icons.lock, color: Colors.white70),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _isPasswordVisible
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                            color: Colors.white70,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _isPasswordVisible = !_isPasswordVisible;
-                            });
-                          },
-                        ),
-                        enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Color(0xFFD7B7A5)),
-                        ),
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.white),
-                        ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "Don’t have an Account?",
+                        style: TextStyle(color: Colors.white70),
                       ),
-                    ),
-                    SizedBox(height: 24),
-                    MouseRegion(
-                      onEnter: (_) => setState(() => _isHoveringSignIn = true),
-                      onExit: (_) => setState(() => _isHoveringSignIn = false),
-                      child: GestureDetector(
-                        onTap: () {
-                          _authController.signIn(
-                            _emailController.text.trim(),
-                            _passwordController.text,
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => RegisterScreen()),
                           );
                         },
-                        child: Container(
-                          width: double.infinity,
-                          height: 50,
-                          decoration: BoxDecoration(
-                            color: _isHoveringSignIn
-                                ? Color(0xFFD7B7A5) // Hover color
-                                : Color(0xFF939185),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Center(
-                            child: Text(
-                              "Sign-in",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
+                        child: const Text(
+                          "Sign up",
+                          style: TextStyle(color: Color(0xFFB5A96B)),
                         ),
                       ),
-                    ),
-                    SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text("Don’t have an Account?",
-                            style: TextStyle(color: Colors.white70)),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => RegisterScreen()),
-                            );
-                          },
-                          child: Text(
-                            "Sign up",
-                            style: TextStyle(color: Color(0xFFB5A96B)),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),
