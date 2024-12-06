@@ -11,7 +11,7 @@ class UpdateSpaceScreen extends StatefulWidget {
 
 class _UpdateSpaceScreenState extends State<UpdateSpaceScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  bool isProcessing = false; // To prevent multiple scans at the same time
+  bool isProcessing = false; // To prevent multiple scans
 
   @override
   Widget build(BuildContext context) {
@@ -95,18 +95,29 @@ class _UpdateSpaceScreenState extends State<UpdateSpaceScreen> {
         'Occupied': occupied,
       });
 
-      _showSnackBar(
+      // Show success message and navigate back to the home page
+      _navigateToHomeWithMessage(
         context,
         'Parking space updated successfully! Current Occupied: $occupied',
         Colors.green,
       );
     } catch (e) {
       _showSnackBar(context, 'Error: ${e.toString()}', Colors.red);
-    } finally {
       setState(() {
         isProcessing = false;
       });
     }
+  }
+
+  void _navigateToHomeWithMessage(BuildContext context, String message, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: color,
+        duration: const Duration(seconds: 3),
+      ),
+    );
+    Navigator.of(context).pop(); // Navigate back to the home screen
   }
 
   void _showSnackBar(BuildContext context, String message, Color color) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:mobil_park/screens/client/client_profile.dart';
 import 'scan_qr.dart'; // Replace with your actual QR code scanning screen file path
 
 void main() async {
@@ -45,6 +46,7 @@ class _ParkingHomePageState extends State<ParkingHomePage> {
   void initState() {
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,6 +80,16 @@ class _ParkingHomePageState extends State<ParkingHomePage> {
                   ),
                 ],
               ),
+            const SizedBox(width: 10),
+            IconButton(
+              icon: const Icon(Icons.person, color: Colors.white),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ProfilePage()),
+                );
+              },
+            ),
           ],
         ),
       ),
@@ -177,3 +189,5 @@ class _ParkingHomePageState extends State<ParkingHomePage> {
     );
   }
 }
+
+
